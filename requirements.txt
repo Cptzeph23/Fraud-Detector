@@ -1,0 +1,9 @@
+Django>=4.0
+djangorestframework
+joblib
+scikit-learn
+pandas
+requests
+python-dotenv
+django-environ
+imbalanced-learn

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h2>Dashboard</h2>
+  <div class="row my-3">
+    <div class="col-md-3"><div class="card p-3">Total: {{ total }}</div></div>
+    <div class="col-md-3"><div class="card p-3">Flagged: {{ flagged }}</div></div>
+    <div class="col-md-3"><div class="card p-3">Success: {{ success }}</div></div>
+    <div class="col-md-3"><div class="card p-3">Failed: {{ failed }}</div></div>
+  </div>
+  <h4>Recent Transactions</h4>
+  <table class="table table-striped">
+    <thead><tr><th>ID</th><th>Phone</th><th>Amount</th><th>Status</th><th>Prob</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for tx in recent %}
+      <tr>
+        <td>{{ tx.id }}</td>
+        <td>{{ tx.phone_number }}</td>
+        <td>{{ tx.amount }}</td>
+        <td>{{ tx.status }}</td>
+        <td>{{ tx.fraud_probability|floatformat:2 }}</td>
+        <td>{{ tx.created_at }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">No transactions yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

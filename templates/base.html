@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Fraud Detection{% endblock %}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-dark mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="/">Fraud Detection</a>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-light" href="/transactions/dashboard/">Dashboard</a>
+      <a class="btn btn-outline-light" href="/transactions/submit/">Submit Transaction</a>
+    </div>
+  </div>
+ </nav>
+<main>
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
