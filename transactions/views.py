@@ -119,3 +119,7 @@ def transaction_form(request):
 def alerts(request):
     alerts = FraudAlert.objects.order_by('-created_at')[:50]
     return render(request, 'transactions/alerts.html', {'alerts': alerts})
+
+def index(request):
+    return render(request, 'transactions/index.html')
+
