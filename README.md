@@ -1,6 +1,7 @@
 # Fraud Detection Django App (skeleton)
 This project contains a Django web application skeleton integrating a machine learning model,
 M-Pesa Daraja (STK Push) and Gava Connect (SMS) placeholders. It is intended for academic/demo use.
+Thew model is trained using XGBoost algorithm and Random Forest Regressor using Jupyter notebook then imported as a .pkl file
 
 ## Setup
 1. Create and activate a python virtualenv (Python 3.8+)
