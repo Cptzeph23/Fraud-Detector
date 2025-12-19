@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Transaction {{ tx.id }}{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h2>Transaction #{{ tx.id }}</h2>
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Phone:</strong> {{ tx.phone_number }}</p>
+          <p><strong>Amount:</strong> {{ tx.amount }}</p>
+          <p><strong>Status:</strong> {{ tx.status }}</p>
+          <p><strong>Fraud Probability:</strong> {{ tx.fraud_probability|floatformat:4 }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Merchant:</strong> {{ tx.merchant_id }}</p>
+          <p><strong>Checkout ID:</strong> {{ tx.mpesa_checkout_request_id }}</p>
+          <p><strong>Created:</strong> {{ tx.created_at }}</p>
+          <p><strong>Updated:</strong> {{ tx.updated_at }}</p>
+        </div>
+      </div>
+      <hr/>
+      <h5>Features</h5>
+      <pre class="bg-light p-3">{{ tx.features_json|json_script:"features" }}</pre>
+    </div>
+  </div>
+  <a href="/transactions/dashboard/" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

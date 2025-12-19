@@ -1,6 +1,8 @@
 import os, json, requests, base64
-from django.shortcuts import render
+from decimal import Decimal
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponse
+from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import Transaction, FraudAlert
@@ -38,15 +40,23 @@ def decide_action(prob, threshold=0.5):
 def create_transaction(request):
     try:
         data = json.loads(request.body.decode('utf-8'))
-        phone = data.get('phone')
+        phone = (data.get('phone') or '').strip()
         amount = data.get('amount')
         merchant_id = data.get('merchant_id','')
-        features = compute_features(amount, phone, merchant_id)
+        if not phone or not amount:
+            return JsonResponse({'error':'phone and amount are required'}, status=400)
+        if not phone.isdigit() or not (phone.startswith('254') or phone.startswith('07')):
+            return JsonResponse({'error':'invalid phone format'}, status=400)
+        try:
+            amount_dec = Decimal(str(amount))
+        except Exception:
+            return JsonResponse({'error':'invalid amount'}, status=400)
+        features = compute_features(float(amount_dec), phone, merchant_id)
         prob = ml.predict(features)
         status = 'PENDING'
         if decide_action(prob) == 'FLAG':
             status = 'FLAGGED'
-        tx = Transaction.objects.create(phone_number=phone, amount=amount, merchant_id=merchant_id, features_json=features, fraud_probability=prob, status=status)
+        tx = Transaction.objects.create(phone_number=phone, amount=amount_dec, merchant_id=merchant_id, features_json=features, fraud_probability=prob, status=status)
         if status == 'FLAGGED':
             msg = f'Suspicious transaction flagged for KES {amount}. Our team will contact you.'
             FraudAlert.objects.create(transaction=tx, message=msg)
@@ -64,7 +74,7 @@ def create_transaction(request):
             'Password': password,
             'Timestamp': timestamp,
             'TransactionType': 'CustomerPayBillOnline',
-            'Amount': int(float(amount)),
+            'Amount': int(float(amount_dec)),
             'PartyA': phone,
             'PartyB': shortcode,
             'PhoneNumber': phone,
@@ -112,14 +122,25 @@ def dashboard(request):
     flagged = Transaction.objects.filter(status='FLAGGED').count()
     success = Transaction.objects.filter(status='SUCCESS').count()
     failed = Transaction.objects.filter(status='FAILED').count()
-    recent = Transaction.objects.order_by('-created_at')[:10]
-    return render(request, 'transactions/dashboard.html', {'total':total,'flagged':flagged,'success':success,'failed':failed,'recent':recent})
+    qs = Transaction.objects.order_by('-created_at')
+    paginator = Paginator(qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    model_loaded = ml.model is not None
+    return render(request, 'transactions/dashboard.html', {
+        'total':total,'flagged':flagged,'success':success,'failed':failed,
+        'page_obj': page_obj,
+        'recent': page_obj.object_list,
+        'model_loaded': model_loaded
+    })
 def transaction_form(request):
     return render(request, 'transactions/transaction_form.html')
+def transaction_detail(request, tx_id):
+    tx = get_object_or_404(Transaction, id=tx_id)
+    return render(request, 'transactions/transaction_detail.html', {'tx': tx})
 def alerts(request):
     alerts = FraudAlert.objects.order_by('-created_at')[:50]
     return render(request, 'transactions/alerts.html', {'alerts': alerts})
 
 def index(request):
     return render(request, 'transactions/index.html')
-
