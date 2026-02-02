@@ -7,7 +7,7 @@ urlpatterns = [
 
     # HTML flow
     path('submit/', views.transaction_form, name='transaction_form'),
-    path('process/', views.create_transaction, name='create_transaction'),
+    path('create/', views.create_transaction, name='create_transaction'),
 
     # Dashboard
     path('dashboard/', views.dashboard, name='dashboard'),
