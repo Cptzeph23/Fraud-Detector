@@ -5,22 +5,28 @@
     <h2 class="mb-4 text-center">Submit a Transaction for Scoring</h2>
     <div class="card shadow-sm">
         <div class="card-body">
-            <form id="transactionForm">
-                {% csrf_token %}
+
+            <form method="post" action="{% url 'create_transaction' %}">
+                 {% csrf_token %}
+
+                 <div class="mb-3">
+                     <label>Phone Number</label>
+                     <input name="phone" class="form-control" placeholder="2547XXXXXXXX" required>
+                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label">Phone Number (2547...)</label>
-                    <input type="text" class="form-control" id="phone" required>
+                     <label>Amount (KES)</label>
+                     <input name="amount" type="number" step="1" class="form-control" required>
                 </div>
+
                 <div class="mb-3">
-                    <label class="form-label">Amount (KES)</label>
-                    <input type="number" class="form-control" id="amount" step="0.01" required>
+                     <label>Merchant ID</label>
+                     <input name="merchant_id" class="form-control">
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Merchant ID</label>
-                    <input type="text" class="form-control" id="merchant_id">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Submit Transaction</button>
+
+                <button class="btn btn-primary">Submit Transaction</button>
             </form>
+
         </div>
     </div>
     <div id="result" class="alert mt-4 d-none"></div>
