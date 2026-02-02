@@ -1,4 +1,4 @@
-Django>=4.0
+pDjango>=4.0
 djangorestframework
 joblib
 scikit-learn

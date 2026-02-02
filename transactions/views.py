@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import Transaction, FraudAlert
 from . import ml
+from django.views.decorators.csrf import csrf_protect
 from datetime import datetime
 DARJA_TOKEN_URL = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
 DARJA_STK_PUSH_URL = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
@@ -133,8 +134,26 @@ def dashboard(request):
         'recent': page_obj.object_list,
         'model_loaded': model_loaded
     })
+
+@csrf_protect
 def transaction_form(request):
+    if request.method == 'POST':
+        phone = request.POST.get('phone')
+        amount = request.POST.get('amount')
+        merchant_id = request.POST.get('merchant_id', '')
+
+        # reuse API logic safely
+        fake_request = request
+        fake_request._body = json.dumps({
+            'phone': phone,
+            'amount': amount,
+            'merchant_id': merchant_id
+        }).encode()
+
+        return create_transaction(fake_request)
+
     return render(request, 'transactions/transaction_form.html')
+
 def transaction_detail(request, tx_id):
     tx = get_object_or_404(Transaction, id=tx_id)
     return render(request, 'transactions/transaction_detail.html', {'tx': tx})
