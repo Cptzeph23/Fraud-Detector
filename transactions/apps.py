@@ -9,8 +9,13 @@ class TransactionsConfig(AppConfig):
 
     def ready(self):
         from . import ml
+        from django.conf import settings
+        import os
 
         model_path = os.getenv("MODEL_PATH")
+        
+        if model_path and not os.path.isabs(model_path):
+             model_path = os.path.join(settings.BASE_DIR, model_path)
 
         if not model_path or not os.path.exists(model_path):
             print("❌ MODEL_PATH invalid or missing")
